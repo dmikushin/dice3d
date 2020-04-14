@@ -22,9 +22,6 @@ ccrmain.con = {
     rbtn: 'rstbtn', // リセットボタン
     betbtn: 'betbtn', // 賭金決定ボタン
     bfbtn: 'betfixbtn', // 賭金固定／固定解除ボタン
-    betinp: 'betinp', // 賭金入力エリア
-    betb: 'betbar', // 賭金入力スライダーのバー
-    betd: 'betdial', // 賭金入力スライダーのつまみ
     rotsel: 'rotsel', // 何巡で終了するか指定select
     sddiv: 'sddiv',  // スコア表示用 side div
     scwrapdiv: 'scwrapdiv',  // スコア表示divを囲うdiv
@@ -99,13 +96,13 @@ ccrmain.Action_ = function() {
    * @type {number}
    * @private
    */
-  this.playnum_ = 4;
+  this.playnum_ = 2;
   /**
    * 振るダイスの個数。
    * @type {number}
    * @private
    */
-  this.dicenum_ = 3;
+  this.dicenum_ = 1;
   /**
    * 親が何巡したらゲーム終了とするか。
    * @type {number}
@@ -384,17 +381,6 @@ ccrmain.Action_.prototype.init = function() {
     this.prClrec_[i] = {x: prClrecX, y: clrecY, w: prClrecW, h: mcvftsz + 10};
     this.pvalClrec_[i] = {x: pvalClrecX, y: clrecY, w: mcvftsz, h: mcvftsz + 10};
   }
-  // 賭金入力スライダー座標
-  var $betbar = $('#' + ccrmain.con.id.betb);
-  var $betdial = $('#' + ccrmain.con.id.betd);
-  this.sliderPos.x = $betbar.offset().left;
-  this.sliderPos.y = $betdial.offset().top;
-  this.sliderPos.w = $betbar.width();
-  this.sliderPos.h = $betdial.height();
-  // reset()では座標がセットされていないため、スライダー再表示
-  var $betinp = $('#' + ccrmain.con.id.betinp);
-  $betinp.val(this.betdef_);
-  this.dispslider(this.betdef_);
 };
 /**
  * スコアのidセット
