@@ -1,0 +1,3 @@
+[submodule "ThirdParty/pre3d"]
+	path = ThirdParty/pre3d
+	url = https://github.com/deanm/pre3d.git

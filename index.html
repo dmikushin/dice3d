@@ -1,12 +1,26 @@
-<script type="text/javascript" src="jquery.js" charset="UTF-8"></script>
-<script type="text/javascript" src="pre3d/pre3d.min.js" charset="UTF-8"></script>
+<script type="text/javascript" src="ThirdParty/pre3d/pre3d.js" charset="UTF-8"></script>
+<script type="text/javascript" src="ThirdParty/pre3d/pre3d_path_utils.js" charset="UTF-8"></script>
+<script type="text/javascript" src="ThirdParty/pre3d/pre3d_shape_utils.js" charset="UTF-8"></script>
 <script type="text/javascript" src="mt.min.js" charset="UTF-8"></script>
-<script type="text/javascript" src="mgbase.js" charset="UTF-8"></script>
-<script type="text/javascript" src="dice2d.js" charset="UTF-8"></script>
 <script type="text/javascript" src="dice3d.js" charset="UTF-8"></script>
-<script type="text/javascript" src="ccrorin.js" charset="UTF-8"></script>
-<script type="text/javascript" src="ccrmain.js" charset="UTF-8"></script>
+<script>
+function makeDice()
+{
+	var canvas = document.createElement("canvas");
+	canvas.width = 400;
+	canvas.height = 400;
 
-<div>
-<canvas id="cv1" class="cv" width="380" height="500"></canvas>
-</div>
+        var dice = document.getElementById("dice");
+        dice.append(canvas);
+
+	var dice3d = new midice3d.Dice(canvas, 1 /* scaling */);
+  	dice3d.camFocLen = 0.7;
+	dice3d.init();
+
+	dice3d.draw(0, 3 /* dice top value */, 0.6 /* x offset */, 0.688 /* y offset */, false);
+}
+</script>
+<body onload="makeDice()">
+<div id="dice"></div>
+</body>
+
