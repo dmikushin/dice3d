@@ -1,3 +1,13 @@
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<style>
+canvas {
+	display:block;
+}
+
+body {
+	margin:0;
+}
+</style>
 <script type="text/javascript" src="ThirdParty/pre3d/pre3d.js" charset="UTF-8"></script>
 <script type="text/javascript" src="ThirdParty/pre3d/pre3d_path_utils.js" charset="UTF-8"></script>
 <script type="text/javascript" src="ThirdParty/pre3d/pre3d_shape_utils.js" charset="UTF-8"></script>
@@ -7,17 +17,26 @@
 function makeDice()
 {
 	var canvas = document.createElement("canvas");
-	canvas.width = 400;
-	canvas.height = 400;
+	canvas.width = window.innerWidth;
+	canvas.height = window.innerHeight;
+
+	var ctx = canvas.getContext("2d");
 
         var dice = document.getElementById("dice");
         dice.append(canvas);
 
-	var dice3d = new midice3d.Dice(canvas, 1 /* scaling */);
+	var dice3d = new midice3d.Dice(canvas, 0.9 /* scaling */);
   	dice3d.camFocLen = 0.7;
 	dice3d.init();
 
-	dice3d.draw(0, 3 /* dice top value */, 0.6 /* x offset */, 0.688 /* y offset */, false);
+	var img = document.createElement("img");
+	img.src = "wood.jpg";
+	img.onload = function()
+	{
+		ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+		dice3d.draw(0, 3 /* dice top value */, 2 /* x offset */, 1 /* y offset */, false);
+	}
 }
 </script>
 <body onload="makeDice()">
