@@ -11,9 +11,13 @@ body {
 <script type="text/javascript" src="ThirdParty/pre3d/pre3d.js" charset="UTF-8"></script>
 <script type="text/javascript" src="ThirdParty/pre3d/pre3d_path_utils.js" charset="UTF-8"></script>
 <script type="text/javascript" src="ThirdParty/pre3d/pre3d_shape_utils.js" charset="UTF-8"></script>
-<script type="text/javascript" src="mt.min.js" charset="UTF-8"></script>
+<script type="text/javascript" src="ThirdParty/magicant/sjavascript/mt.js" charset="UTF-8"></script>
 <script type="text/javascript" src="dice3d.js" charset="UTF-8"></script>
 <script>
+function rollDice()
+{
+}
+
 function makeDice()
 {
 	var canvas = document.createElement("canvas");
@@ -29,14 +33,48 @@ function makeDice()
   	dice3d.camFocLen = 0.7;
 	dice3d.init();
 
+	// Mersenne Twister random generator.
+	var mt = new MersenneTwister();
+
 	var img = document.createElement("img");
 	img.src = "wood3.jpg";
 	img.onload = function()
 	{
 		ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
-		dice3d.draw(0, 3 /* dice top value */, 2 /* x offset */, 1 /* y offset */, false);
+		var value = mt.nextInt(1, 6);
+		var valueSideFront = 0;
+		var valueSideBack = 1;
+		var coord = { x: 2, y: 1 };
+		var clearCanvas = false;
+		dice3d.draw(valueSideFront, value, coord.x, coord.y, clearCanvas);
 	}
+/*
+	img.onclick = function()
+	{
+		idx, bufidx
+		var diceval = this.playeyeval_[idx];
+		if (bufidx === null)
+		{
+			bufidx = 0;
+		}
+
+		ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+		for (var i = 0; i < this.dicenum_; i++)
+		{
+			if (idx == this.play3didx_)
+			{
+				ccrmain.dice3dins.draw(bufidx, diceval[i], this.diceX_[i],
+					this.diceY_[idx], false);
+			}
+			else
+			{
+				ccrmain.dice2dins.draw(diceval[i], this.diceX_[i], this.diceY_[idx], false);
+			}
+		}
+	}
+*/
 }
 </script>
 <body onload="makeDice()">

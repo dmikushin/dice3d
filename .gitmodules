@@ -1,3 +1,6 @@
 [submodule "ThirdParty/pre3d"]
 	path = ThirdParty/pre3d
 	url = https://github.com/deanm/pre3d.git
+[submodule "ThirdParty/magicant"]
+	path = ThirdParty/magicant
+	url = https://github.com/magicant/magicant.github.io.git
