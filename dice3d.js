@@ -1,37 +1,38 @@
 /**
- * @fileoverview ダイスを振る(3次元版)。
- *  pre3d(http://deanm.github.com/pre3d/)を前提とする。
+ * @fileoverview Roll the die (3D version).
+ * Assumes pre3d (http://deanm.github.com/pre3d/).
  * @author mimami24im@gmail.com
  */
- 
+
 /**
  * @namespace
  */
 var midice3d = {};
 
-/* 定数 */
+/*constant*/
 midice3d.con = {
-  ttype: { // transformのタイプ
-    t: 'translate',  // 移動
-    r: 'rotate',  // 回転
-    s: 'scale'  //拡大
+  ttype : {
+    // transform type
+    t : 'translate', // mobile
+    r : 'rotate',    // rotation
+    s : 'scale'      // Expansion
   },
-  rad1: Math.PI / 180 // 1°が何ラジアンか
+  rad1 : Math.PI / 180 // How many radians is 1 °
 };
 
-/** @typedef {{x: number, y: number, z: number}} */
+/** @typedef {{x: number, y: number, z: number}}*/
 midice3d.Vector;
 /**
- * QuadFaceをコピー
- * @param {Pre3d.QuadFace} qf コピー元QuadFace
- * @return {Pre3d.QuadFace} コピー結果
+ * Copy QuadFace
+ * @param {Pre3d.QuadFace} qf Source QuadFace
+ * @return {Pre3d.QuadFace} Copy result
  * @private
  */
 midice3d.copyQF_ = function(qf) {
-  var chkArr = [qf.i0, qf.i1, qf.i2, qf.i3];
+  var chkArr = [ qf.i0, qf.i1, qf.i2, qf.i3 ];
   var copiedArr = [];
-  // i0,i1,i2,i3は、Shape.quads[]の場合はnumber、
-  // Renderer.buffered_quads_[].qfの場合はmidice3d.Vector
+  // i0, i1, i2, i3 is number for Shape.quads [],
+  // Midice3d.Vector for Renderer.buffered_quads _ []. Qf
   for (var i = 0; i < chkArr.length; i++) {
     if (typeof chkArr[i] == 'object' && chkArr[i] !== null) {
       copiedArr[i] = midice3d.copyVec_(chkArr[i]);
@@ -40,17 +41,16 @@ midice3d.copyQF_ = function(qf) {
     }
   }
   var cqf = new Pre3d.QuadFace(copiedArr[0], copiedArr[1], copiedArr[2],
-      copiedArr[3]);
-  cqf.centroid = (qf.centroid === null) ? null :
-      midice3d.copyVec_(qf.centroid);
+                               copiedArr[3]);
+  cqf.centroid = (qf.centroid === null) ? null : midice3d.copyVec_(qf.centroid);
   cqf.normal1 = (qf.normal1 === null) ? null : midice3d.copyVec_(qf.normal1);
   cqf.normal2 = (qf.normal2 === null) ? null : midice3d.copyVec_(qf.normal2);
   return cqf;
 };
 /**
- * Pathをコピー
- * @param {Pre3d.Path} pt コピー元path
- * @return {Pre3d.Path} コピー結果
+ * Copy Path
+ * @param {Pre3d.Path} pt copy source path
+ * @return {Pre3d.Path} Copy result
  * @private
  */
 midice3d.copyPath_ = function(pt) {
@@ -59,53 +59,53 @@ midice3d.copyPath_ = function(pt) {
     cpt.points[i] = midice3d.copyVec_(pt.points[i]);
   }
   for (var i = 0; i < pt.curves.length; i++) {
-    cpt.curves[i] = new Pre3d.Curve(pt.curves[i].ep, pt.curves[i].c0,
-        pt.curves[i].c1);
+    cpt.curves[i] =
+        new Pre3d.Curve(pt.curves[i].ep, pt.curves[i].c0, pt.curves[i].c1);
   }
   cpt.starting_point = pt.starting_point;
   return cpt;
 };
 /**
- * Vectorをコピー
- * @param {midice3d.Vector} vec コピー元Vector
- * @return {midice3d.Vector} コピー結果
+ * Copy Vector
+ * @param {midice3d.Vector} vec Source Vector
+ * @return {midice3d.Vector} Copy result
  * @private
  */
-midice3d.copyVec_ = function(vec) {
-  return {x: vec.x, y: vec.y, z: vec.z};
-};
+midice3d.copyVec_ = function(vec) { return {x : vec.x, y : vec.y, z : vec.z}; };
 /**
- * Pathの値に対してtransformを実行。rotateはrotateZ→rotateY→rotateXの順に回転
+ * Transform the value of Path. rotate rotates in the order of rotateZ → rotateY
+ * → rotateX
  * @param {Pre3d.Path} path 対象path
- * @param {string} type transformのタイプ。midice3d.con.ttype の値を設定
- * @param {midice3d.Vector} tp 各方向のtransformサイズ。
- *    回転角は度で指定
+ * @param {string} type The type of transform. Set the value of
+ *     midice3d.con.ttype
+ * @param {midice3d.Vector} tp transform size in each direction.
+ * Rotation angle is specified in degrees
  * @private
  */
 midice3d.transPath_ = function(path, type, tp) {
   var t = new Pre3d.Transform();
   switch (type) {
-    case midice3d.con.ttype.t: {
-      t.translate(tp.x, tp.y, tp.z);
-      break;
-    }
-    case midice3d.con.ttype.r: {
-      t.rotateZ(midice3d.con.rad1 * tp.z);
-      t.rotateY(midice3d.con.rad1 * tp.y);
-      t.rotateX(midice3d.con.rad1 * tp.x);
-      break;
-    }
-    case midice3d.con.ttype.s: {
-      t.scale(tp.x, tp.y, tp.z);
-      break;
-    }
-    default: {
-      return;
-    }
+  case midice3d.con.ttype.t: {
+    t.translate(tp.x, tp.y, tp.z);
+    break;
+  }
+  case midice3d.con.ttype.r: {
+    t.rotateZ(midice3d.con.rad1 * tp.z);
+    t.rotateY(midice3d.con.rad1 * tp.y);
+    t.rotateX(midice3d.con.rad1 * tp.x);
+    break;
+  }
+  case midice3d.con.ttype.s: {
+    t.scale(tp.x, tp.y, tp.z);
+    break;
+  }
+  default: {
+    return;
+  }
   }
   if (path.starting_point === null) {
     var plen = path.points.length;
-    path.points[plen] = {x: 0, y: 0, z: 0};
+    path.points[plen] = {x : 0, y : 0, z : 0};
     path.starting_point = plen;
   }
   for (var i = 0; i < path.points.length; i++) {
@@ -114,137 +114,143 @@ midice3d.transPath_ = function(path, type, tp) {
 };
 
 /**
- * ダイスクラス。
- * 特記していない場合、長さの単位は canvas.height / 2 を1とする値。
- * @param {HTMLElement} canvas 表示対象HTMLCanvasElement
- * @param {number} width 1辺の長さ
+ * Dice class.
+ * Unless otherwise specified, the unit of length is a value where canvas.height
+ * / 2 is 1.
+ * @param {HTMLElement} canvas Display target HTMLCanvasElement
+ * @param {number} width One side length
  * @constructor
  */
 midice3d.Dice = function(canvas, width) {
   /**
-   * 1辺の長さ
-   * @type {number} 
+   * One side length
+   * @type {number}
    * @private
    */
   this.width_ = width;
   /**
-   * 1辺の長さの半分
+   * Half the length of one side
    * @type {number}
    * @private
    */
   this.hfwdth_ = this.width_ / 2;
   /**
-   * 表示対象HTMLCanvasElement
-   * @type {HTMLElement} 
+   * Display target HTMLCanvasElement
+   * @type {HTMLElement}
    * @private
    */
   this.canvas_ = canvas;
   /**
-   * canvas.heightの半分(px)
+   * Half of canvas.height (px)
    * @type {number}
    * @private
    */
   this.hfcvh_ = canvas.height / 2;
   /**
-   * 1以外の目の色。CSSカラーを含んだ文字列を設定。
+   * Eye colors other than 1. Set the character string including CSS color.
    * @type {string}
    * @private
    */
   this.eyecol_ = '#000000';
   /**
-   * 1の目の色。CSSカラーを含んだ文字列を設定。
+   * 1 eye color. Set the character string including CSS color.
    * @type {string}
    * @private
    */
   this.eye1col_ = '#ff0000';
   /**
-   * カメラから見た物体の初期値からの回転量の配列。
-   * バッファの数だけ要素を作成
-   * 初期値では、カメラはz軸方向で上から見下ろしている。
-   * 各軸を中心とした回転角を度で指定。rotateZ→rotateY→rotateXの順に回転
-   * @type {Array.<midice3d.Vector>} 
+   * An array of rotation amounts from the initial value of the object seen from
+   * the camera. Create as many elements as there are buffers By default, the
+   * camera looks down from above in the z-axis direction. Specify the angle of
+   * rotation about each axis in degrees. rotateZ → rotateY → rotateX in order
+   * @type {Array.<midice3d.Vector>}
    * @private
    */
-   this.camAngles_ = [
-      {x: 47, y: 40, z: 0},
-      {x: -40, y: 55, z: 0},
-      {x: 47, y: 35, z: -20}
-   ];
+  this.camAngles_ = [
+    {x : 47, y : 40, z : 0}, {x : -40, y : 55, z : 0}, {x : 47, y : 35, z : -20}
+  ];
   /**
-   * カメラから見た物体の初期値からの移動量。
-   * 初期値では、カメラは{x:0, y:0, z:-1}でz軸方向真下を見下ろしている。
-   * 各軸方向に動かす長さを指定。
-   * @type {midice3d.Vector} 
+   * The amount of movement of the object seen from the camera from the initial
+   * value. By default, the camera looks down at {x: 0, y: 0, z: -1} directly
+   * under the z axis. Specify the length to move in each axis direction.
+   * @type {midice3d.Vector}
    * @private
    */
-   this.camTrans_ = {x: 0, y: 0, z: -2};
+  this.camTrans_ = {x : 0, y : 0, z : -2};
   /**
-   * カメラのfocal_length
-   * @type {number} 
+   * Camera focal_length
+   * @type {number}
    */
-   this.camFocLen = 1;
+  this.camFocLen = 1;
   /**
-   * 明るさのコントラスト。0以上1以下の値を設定。
-   * 値が小さいほどコントラストが大きい。
-   * @type {number} 
+   * Brightness contrast. Set a value between 0 and 1 inclusive.
+   * The smaller the value, the higher the contrast.
+   * @type {number}
    * @private
    */
-   this.lightCont_ = 0.9;
+  this.lightCont_ = 0.9;
   /**
-   * 光源の初期値からの回転量。初期値はz軸方向の単位ベクトル。
-   * 各軸を中心とした回転角を度で指定。rotateX→rotateY→rotateZの順に回転
-   * @type {midice3d.Vector} 
+   * The amount of rotation from the initial value of the light source. The
+   * initial value is the unit vector in the z-axis direction. Specify the angle
+   * of rotation about each axis in degrees. rotateX → rotateY → rotateZ in
+   * order
+   * @type {midice3d.Vector}
    * @private
    */
-   this.lightAngle_ = {x: -30, y: 0, z: 20};
+  this.lightAngle_ = {x : -30, y : 0, z : 20};
   /**
-   * 光源方向ベクトル。this.init()で生成。
-   * @type {midice3d.Vector} 
+   * Light source direction vector. Generated by this.init ().
+   * @type {midice3d.Vector}
    * @private
    */
-   this.lightVec_ = {x: 0, y: 0, z: 1};
+  this.lightVec_ = {x : 0, y : 0, z : 1};
   /**
-   * ダイス表示バッファの配列。サイズはthis.camAngles_.length以下であること。
-   * @type {Array.<midice3d.DBuffer_>} 
+   * An array of dice display buffers. The size must be less than
+   * this.camAngles_.length.
+   * @type {Array.<midice3d.DBuffer_>}
    * @private
    */
-   this.dbuf_ = [];
+  this.dbuf_ = [];
   /**
-   * Rendererオブジェクト。this.init()で生成。
+   * Renderer object. Generated by this.init ().
    * @type {Pre3d.Renderer}
    * @private
    */
-   this.renderer_ = null;
+  this.renderer_ = null;
 };
 /**
- * 初期処理。事前にダイス表示バッファを作成しておく。
+ * Initial processing. Create the dice display buffer in advance.
  */
 midice3d.Dice.prototype.init = function() {
-  // Rendererオブジェクト生成
+  // Renderer object generation
   var renderer = new Pre3d.Renderer(this.canvas_);
   renderer.camera.focal_length = this.camFocLen;
-  renderer.fill_rgba = new Pre3d.RGBA(1, 1, 1, 1);  // white
+  renderer.fill_rgba = new Pre3d.RGBA(1, 1, 1, 1); // white
 
-  // 光源方向ベクトル作成
-  var g_z_axis_vector = {x: 0, y: 0, z: 1}; // z軸方向単位ベクトル
+  // Create light source direction vector
+  var g_z_axis_vector = {x : 0, y : 0, z : 1}; // z-axis direction unit vector
   var gzt = new Pre3d.Transform();
   gzt.reset();
   gzt.rotateX(midice3d.con.rad1 * this.lightAngle_.x);
   gzt.rotateY(midice3d.con.rad1 * this.lightAngle_.y);
   gzt.rotateZ(midice3d.con.rad1 * this.lightAngle_.z);
-  this.lightVec_ =  gzt.transformPoint(g_z_axis_vector);
+  this.lightVec_ = gzt.transformPoint(g_z_axis_vector);
 
-  // 基本形(回転前のダイス)を作成する。以下、配列のindexは(目の値 - 1)
-  // z = 0 の面から基本形の面に移動させるための回転角
-  var brot = [{x: -90, y: 0, z: 0}, {x: 0, y: -90, z: 0}, {x: 0, y: 0, z: 0},
-      {x: 180, y: 0, z: 0}, {x: 0, y: 90, z: 0}, {x: 90, y: 0, z: 0}];
-  // 基本形の各面の重心
+  // Create a basic shape (die before rotation). Below, array index is (eye
+  // value-1) Rotation angle to move from the z u003d 0 plane to the base plane
+  var brot = [
+    {x : -90, y : 0, z : 0}, {x : 0, y : -90, z : 0}, {x : 0, y : 0, z : 0},
+    {x : 180, y : 0, z : 0}, {x : 0, y : 90, z : 0}, {x : 90, y : 0, z : 0}
+  ];
+  // Center of gravity of each side of basic form
   var hfwdth = this.hfwdth_;
-  var cent = [{x: 0, y: hfwdth, z: 0}, {x: -hfwdth, y: 0, z: 0},
-      {x: 0, y: 0, z: hfwdth}, {x: 0, y: 0, z: -hfwdth},
-      {x: hfwdth, y: 0, z: 0}, {x: 0, y: -hfwdth, z: 0}];
-  // 1から6の目の基本形のpath
-  var eyepathBase = []; 
+  var cent = [
+    {x : 0, y : hfwdth, z : 0}, {x : -hfwdth, y : 0, z : 0},
+    {x : 0, y : 0, z : hfwdth}, {x : 0, y : 0, z : -hfwdth},
+    {x : hfwdth, y : 0, z : 0}, {x : 0, y : -hfwdth, z : 0}
+  ];
+  // Path of the basic form of eyes 1 to 6
+  var eyepathBase = [];
   var dice = new midice3d.DFace_(this.width_);
   for (var i = 0; i < 6; i++) {
     eyepathBase[i] = dice.makep(i + 1);
@@ -252,45 +258,46 @@ midice3d.Dice.prototype.init = function() {
       midice3d.transPath_(eyepathBase[i][j], midice3d.con.ttype.r, brot[i]);
     }
   }
-  // 目の値を上にするために必要な回転角
-  var eyerot = [{x: 0, y: 0, z: 0}, {x: 0, y: 0, z: -90}, {x: -90, y: 0, z: 0},
-      {x: 90, y: 0, z: 0}, {x: 0, y: 0, z: 90}, {x: 180, y: 0, z: 0}];
+  // Rotation angle required to raise the eye value
+  var eyerot = [
+    {x : 0, y : 0, z : 0}, {x : 0, y : 0, z : -90}, {x : -90, y : 0, z : 0},
+    {x : 90, y : 0, z : 0}, {x : 0, y : 0, z : 90}, {x : 180, y : 0, z : 0}
+  ];
 
-  // ダイス表示バッファ作成
+  // Dice display buffer creation
   var cube, eyepath, pathidx, eyevals;
   for (var i = 0; i < this.camAngles_.length; i++) {
     renderer.emptyBuffer();
     var dicebuf = new midice3d.DBuffer_();
-    // ダイスの回転角に応じたカメラ設定
+    // Camera settings according to the rotation angle of the dice
     this.set_camera_(renderer, this.camTrans_, this.camAngles_[i]);
 
-    // 立方体のバッファ作成
+    // Cube buffer creation
     cube = Pre3d.ShapeUtils.makeCube(this.width_ / 2);
     renderer.bufferShape(cube);
     this.chgIntensity_(renderer);
     dicebuf.drbuf = this.makeBuf_(renderer);
 
-    // 上の目が1から6のpathのバッファ作成
+    // Create buffer for path with upper eyes 1 to 6
     for (var j = 0; j < 6; j++) {
-      // 表示する目の値を求める
+      // Find the eye value to display
       eyevals = this.getDispEye_(cent, this.camAngles_[i], eyerot[j]);
 
       dicebuf.eyePathArr[j] = [];
       dicebuf.eye1idxArr[j] = [];
-      pathidx = 0;  // dicebuf.eyePathArr[j][] のindex
-      // 表示する目のバッファ作成
+      pathidx = 0; // dicebuf.eyePathArr[j][] のindex
+      // Creating a buffer for the displayed eye
       for (var j2 = 0; j2 < eyevals.length; j2++) {
         var eyeval = eyevals[j2];
         var pathlen = eyepathBase[eyeval].length;
         if (pathlen == 1) {
-          // 1の目のindex格納
+          // 1st eye index storage
           dicebuf.eye1idxArr[j].push(pathidx);
         }
         for (var j3 = 0; j3 < pathlen; j3++) {
           eyepath = midice3d.copyPath_(eyepathBase[eyeval][j3]);
           midice3d.transPath_(eyepath, midice3d.con.ttype.r, eyerot[j]);
-          dicebuf.eyePathArr[j][pathidx] =
-              this.makePBuf_(eyepath, renderer);
+          dicebuf.eyePathArr[j][pathidx] = this.makePBuf_(eyepath, renderer);
           pathidx++;
         }
       }
@@ -298,21 +305,21 @@ midice3d.Dice.prototype.init = function() {
     this.dbuf_[i] = dicebuf;
   }
 
-  // Rendererオブジェクトをプロパティに設定
+  // Set Renderer object to property
   renderer.emptyBuffer();
   this.renderer_ = renderer;
 };
 /**
- * 表示する目の値を求める
- * @param {Array.<midice3d.Vector>} centroids 面の重心
- * @param {midice3d.Vector} camrot カメラ回転角
- * @param {midice3d.Vector} eyerot 目の値を上にするための回転角
- * @return {Array.<number>} 表示する目の値 - 1
+ * Calculate the eye value to display
+ * @param {Array. <midice3d.Vector>} centroids centroid of face
+ * @param {midice3d.Vector} camrot Camera rotation angle
+ * @param {midice3d.Vector} eyerot Rotation angle to raise the eye value
+ * @return {Array. <number>} eye value to display-1
  * @private
  */
 midice3d.Dice.prototype.getDispEye_ = function(centroids, camrot, eyerot) {
   var eyeval = [];
-  // 変換行列作成
+  // Create transformation matrix
   var trans = new Pre3d.Transform;
   trans.rotateZ(midice3d.con.rad1 * eyerot.z);
   trans.rotateY(midice3d.con.rad1 * eyerot.y);
@@ -321,12 +328,12 @@ midice3d.Dice.prototype.getDispEye_ = function(centroids, camrot, eyerot) {
   trans.rotateY(midice3d.con.rad1 * camrot.y);
   trans.rotateX(midice3d.con.rad1 * camrot.x);
 
-  // 重心に変換行列を適用し、z > 0 の重心を抽出
+  // Apply transformation matrix to centroids and extract centroids with z> 0
   var tp;
   for (var i = 0; i < centroids.length; i++) {
     tp = trans.transformPoint(centroids[i]);
-    // 浮動小数点の誤差を考慮
-    if ( tp.z > 0.0000001 ) {
+    // Consider floating point error
+    if (tp.z > 0.0000001) {
       eyeval.push(i);
     }
   }
@@ -334,8 +341,8 @@ midice3d.Dice.prototype.getDispEye_ = function(centroids, camrot, eyerot) {
 };
 
 /**
- * renderer.buffered_quads_からdraw用バッファ作成
- * @param {Pre3d.Renderer} renderer 作成元
+ * Create draw buffer from renderer.buffered_quads_
+ * @param {Pre3d.Renderer} renderer
  * @return {Array.<{qf: Pre3d.QuadFace, fillcolor: string}>}
  * @private
  */
@@ -346,8 +353,8 @@ midice3d.Dice.prototype.makeBuf_ = function(renderer) {
   var obj, qf, frgba, iy, rgba, pushedp, iarr, nextj;
   for (var i = 0; i < all_quads.length; i++) {
     obj = all_quads[i];
-    
-    // qf作成
+
+    // qf made
     qf = obj.qf;
     renderer.projectQuadFaceToCanvasIP(qf);
     for (var j = 0; j < 4; j++) {
@@ -360,59 +367,62 @@ midice3d.Dice.prototype.makeBuf_ = function(renderer) {
       qf['i' + j] = pushedp[0];
       qf['i' + nextj] = pushedp[1];
     }
-    // 座標を全て整数化する
+    // Convert all coordinates to integers
     for (var j = 0; j < 4; j++) {
       qf['i' + j].x = ~~qf['i' + j].x;
       qf['i' + j].y = ~~qf['i' + j].y;
     }
     drbuf[i] = {};
     drbuf[i].qf = midice3d.copyQF_(qf);
-    
-    // fillcolor作成
+
+    // create fillcolor
     frgba = obj.fill_rgba;
     iy = obj.intensity;
-    rgba = [~~(frgba.r * iy * 255), ~~(frgba.g * iy * 255),
-        ~~(frgba.b * iy * 255), frgba.a];
+    rgba = [
+      ~~(frgba.r * iy * 255), ~~(frgba.g * iy * 255), ~~(frgba.b * iy * 255),
+      frgba.a
+    ];
     drbuf[i].fillcolor = 'rgba(' + rgba.join(',') + ')';
   }
   return drbuf;
 };
 /**
- * Pre3d.Renderer.buffered_quads_のZ座標順ソート関数。
- * pre3d.js の zSorter()。
- * @param {Object} x 比較対象
- * @param {Object} y 比較対象
- * @return {number} x > y なら正, x == y なら0, それ以外は負
+ * Pre3d.Renderer.buffered_quads_ u200bu200bZ-coordinate sort function.
+ * zSorter () from pre3d.js.
+ * @param {Object} x comparison
+ * @param {Object} y comparison
+ * @return {number} Positive if x> y, 0 if x u003du003d y, negative otherwise
  * @private
  */
-midice3d.zSorter_ = function(x, y) {
-  return x.qf.centroid.z - y.qf.centroid.z;
-};
+midice3d.zSorter_ = function(x,
+                             y) { return x.qf.centroid.z - y.qf.centroid.z; };
 /**
- * 2点間の距離をすこし離す。
- * pre3d.js の pushPoints2dIP()。
- * @param {{x: number, y: number}} a 対象座標
- * @param {{x: number, y: number}} b 対象座標
- * @return {Array.<{x: number, y: number}>} 変換後の座標。[0]がa、[1]がb
- * @private
- */
+* Separate the distance between two points.
+
+* @param {{x: number, y: number}} a coordinate
+
+* @return {Array. <{x: number, y: number}>} Converted coordinates. [0] is a and
+[1] is b
+
+*/
 midice3d.pushPoints2d_ = function(a, b) {
   var vec = Pre3d.Math.unitVector2d(Pre3d.Math.subPoints2d(b, a));
   if (isNaN(vec.x) || isNaN(vec.y)) {
-    vec = {x: 0, y: 0};
+    vec = {x : 0, y : 0};
   }
   var bpushed = Pre3d.Math.addPoints2d(b, vec);
   var apushed = Pre3d.Math.subPoints2d(a, vec);
-  return [apushed, bpushed];
+  return [ apushed, bpushed ];
 };
 
-/**
- * Pathのdraw用バッファ作成
- * @param {Pre3d.Path} path 作成対象
- * @param {Pre3d.Renderer} renderer 作成環境
- * @return {Pre3d.Path} transformしてprojectPointToCanvasした座標を持つPath
- * @private
- */
+/*
+
+* @param {Pre3d.Path} path Creation target
+* @param {Pre3d.Renderer} renderer makes the environment
+* @return {Pre3d.Path} Path that has the coordinates transformed and
+projectPointToCanvas
+
+*/
 midice3d.Dice.prototype.makePBuf_ = function(path, renderer) {
   var trans = new Pre3d.Transform();
   trans.multTransform(renderer.camera.transform);
@@ -421,13 +431,13 @@ midice3d.Dice.prototype.makePBuf_ = function(path, renderer) {
   for (var i = 0; i < path.points.length; i++) {
     tps[i] = trans.transformPoint(path.points[i]);
   }
-  
+
   var screen_points = renderer.projectPointsToCanvas(tps);
   var pathbuf = midice3d.copyPath_(path);
   pathbuf.points = screen_points;
   if (path.starting_point === null) {
     var start_point = renderer.projectPointToCanvas(
-        trans.transformPoint({x: 0, y: 0, z: 0}));
+        trans.transformPoint({x : 0, y : 0, z : 0}));
     var spidx = pathbuf.points.length;
     pathbuf.points[spidx] = start_point;
     pathbuf.starting_point = spidx;
@@ -435,7 +445,7 @@ midice3d.Dice.prototype.makePBuf_ = function(path, renderer) {
     pathbuf.starting_point = path.starting_point;
   }
 
-  // 座標を整数化
+  // Convert coordinates to integers
   for (var i = 0; i < pathbuf.points.length; i++) {
     pathbuf.points[i].x = ~~pathbuf.points[i].x;
     pathbuf.points[i].y = ~~pathbuf.points[i].y;
@@ -445,12 +455,13 @@ midice3d.Dice.prototype.makePBuf_ = function(path, renderer) {
 };
 
 /**
- * cameraをセット。rotateZ→rotateY→rotateX→translateの順に移動
- * @param {Pre3d.Renderer} renderer セット対象Renderer
+ * Set camera. Move in order of rotateZ → rotateY → rotateX → translate
+ * @param {Pre3d.Renderer} renderer Set target Renderer
  * @param {midice3d.Vector} trans
- *  カメラから見て物体を各軸方向に動かす長さ
+ * Length to move the object in each axis as seen from the camera
  * @param {midice3d.Vector} rot
- *  カメラから見て物体を各軸を中心に回転する値。単位はラジアン
+ * A value that rotates the object around each axis as seen from the camera.
+ * Unit is radian
  * @private
  */
 midice3d.Dice.prototype.set_camera_ = function(renderer, trans, rot) {
@@ -462,31 +473,34 @@ midice3d.Dice.prototype.set_camera_ = function(renderer, trans, rot) {
   ct.translate(trans.x, trans.y, trans.z);
 };
 /**
- * 明るさを変更
- * @param {Pre3d.Renderer} renderer 変更対象Renderer
+ * Change brightness
+ * @param {Pre3d.Renderer} renderer Renderer to change
  * @private
  */
 midice3d.Dice.prototype.chgIntensity_ = function(renderer) {
-  var intensity; // 面の明るさ
-  var n1; // 面の法線ベクトル。明るさ算出に使用
+  var intensity; // Surface brightness
+  var n1;        // Face normal vector. Used for brightness calculation
   for (var i = 0; i < renderer.buffered_quads_.length; i++) {
     n1 = renderer.buffered_quads_[i].qf.normal1;
     intensity = Pre3d.Math.dotProduct3d(this.lightVec_, n1);
-    intensity += (1 - intensity) * this.lightCont_; 
-    // 明るさを変更
-    renderer.buffered_quads_[i].intensity = intensity; 
+    intensity += (1 - intensity) * this.lightCont_;
+    // Change brightness
+    renderer.buffered_quads_[i].intensity = intensity;
   }
 };
 /**
- * ダイスを表示する
- * @param {number} bufidx 表示するバッファのindex
- * @param {number} upeyeval 上の目の値
- * @param {number} x 中心のX座標(左上を(0,0)とする。Canvas右方向が正)
- * @param {number} y 中心のY座標(左上を(0,0)とする。Canvas下方向が正)
- * @param {boolean} clrflg 描画前にCanvasをクリアするならtrue。それ以外はfalse
+ * Show dice
+ * @param {number} bufidx index of the buffer to display
+ * @param {number} upeyeval The eye value above
+ * @param {number} x Center X coordinate (upper left is (0,0). Canvas right
+ *     direction is positive)
+ * @param {number} y center Y coordinate (upper left is (0,0). Canvas downward
+ *     direction is positive)
+ * @param {boolean} clrflg true to clear the Canvas before drawing. Otherwise
+ *     false
  */
 midice3d.Dice.prototype.draw = function(bufidx, upeyeval, x, y, clrflg) {
-  // デフォルト値設定
+  // Default value setting
   if (!x) {
     x = 1;
   }
@@ -496,7 +510,7 @@ midice3d.Dice.prototype.draw = function(bufidx, upeyeval, x, y, clrflg) {
   if (clrflg === undefined) {
     clrflg = true;
   }
-  var tx, ty; // 中心移動距離
+  var tx, ty; // Center moving distance
   tx = ~~(x * this.hfcvh_ - this.canvas_.width / 2);
   ty = ~~(y * this.hfcvh_ - this.hfcvh_);
 
@@ -507,7 +521,7 @@ midice3d.Dice.prototype.draw = function(bufidx, upeyeval, x, y, clrflg) {
     renderer.clearBackground();
   }
   var ctx = renderer.ctx;
-  // 立方体を描く
+  // Draw a cube
   ctx.save();
   ctx.translate(tx, ty);
   var qf;
@@ -522,20 +536,20 @@ midice3d.Dice.prototype.draw = function(bufidx, upeyeval, x, y, clrflg) {
     ctx.fill();
   }
 
-  // 目を描く
+  // Draw eyes
   var eyePath, key, startpt;
-  // 1の目のindexを1つの文字列にまとめる
+  // Combine the index of the first eye into one string
   var eye1idxstr = '#' + dicebuf.eye1idxArr[upeyeval - 1].join('#') + '#';
   for (var i = 0, il = dicebuf.eyePathArr[upeyeval - 1].length; i < il; i++) {
     eyePath = dicebuf.eyePathArr[upeyeval - 1][i];
-    // pathが1の目か判定
+    // Determine if path is 1
     key = '#' + i + '#';
     if (eye1idxstr.indexOf(key) >= 0) {
       ctx.fillStyle = this.eye1col_;
     } else {
       ctx.fillStyle = this.eyecol_;
     }
-    // pathを描く
+    // draw the path
     ctx.beginPath();
     startpt = eyePath.starting_point;
     ctx.moveTo(eyePath.points[startpt].x, eyePath.points[startpt].y);
@@ -559,155 +573,163 @@ midice3d.Dice.prototype.draw = function(bufidx, upeyeval, x, y, clrflg) {
 };
 
 /**
- * ダイス表示バッファクラス。
+ * Dice display buffer class.
  * @private
  * @constructor
  */
 midice3d.DBuffer_ = function() {
   /**
-   * buffered_quads_[]のqfをprojectQuadFaceToCanvasIP()した結果と、
-   * ctx.fillStyleに設定する値。
+   * The result of projectQuadFaceToCanvasIP () of qf of buffered_quads_
+   * u200bu200b[], Value to set in ctx.fillStyle.
    * @type {Array.<{qf: Pre3d.QuadFace, fillcolor: string}>}
    */
   this.drbuf = [];
   /**
-   * 表示する目のpath配列。indexは上の目の値-1。
+   * Path array of eyes to display. index is the value of the upper eye -1.
    * @type {Array.<Array.<Pre3d.Path>>}
    */
   this.eyePathArr = [];
   /**
-   * eyePathArrにおける1の目のindex
+   * index of the first eye in eyePathArr
    * @type {Array.<Array.<number>>}
    */
   this.eye1idxArr = [];
 };
 
-
 /**
- * ダイス面クラス。
- * 特記していない場合、長さの単位はcanvas.height / 2 を1とする値。
- * @param {number} width 辺の長さ
+ * Dice surface class.
+ * Unless otherwise specified, the unit of length is canvas.height / 2 with a
+ * value of 1.
+ * @param {number} width Side length
  * @private
  * @constructor
  */
 midice3d.DFace_ = function(width) {
   /**
-   * 1辺の長さ
+   * One side length
    * @type {number}
    * @private
    */
   this.width_ = width;
   /**
-   * 1辺の長さの半分
+   * Half the length of one side
    * @type {number}
    * @private
    */
   this.hfwdth_ = this.width_ / 2;
   /**
-   * 1以外の目の丸の半径は、辺の長さの何倍か
+   * What is the radius of the circle other than 1 times the side length?
    * @type {number}
    * @private
    */
   this.eyeRadRate_ = 0.1;
-   /**
-   * 1の目の丸の半径は、1以外の目の丸の半径の何倍か
+  /**
+   * How many times the radius of the 1st eye circle is larger than the radius
+   * of the 1st eye circle
    * @type {number}
    * @private
    */
   this.eye1RadRate_ = 1.5;
   /**
-   * 4の目の丸の中心が、1辺の4分の1から外側にずれる部分の割合。
-   * 0以上1以下の値をセット。
+   * Percentage of the part where the center of the 4th circle is shifted from
+   * the 1/4 of one side to the outside. Set a value between 0 and 1 inclusive.
    * @type {number}
    * @private
    */
   this.cdist_ = 0.1;
   /**
-   * 1の目の中心から、4の目の丸の中心までのx座標上の距離
+   * Distance from the center of the 1st eye to the center of the 4th eye circle
+   * on the x coordinate
    * @type {number}
    * @private
    */
   this.distCir_ = this.width_ / 4 * (1 + this.cdist_);
   /**
-   * 1以外の目の丸の半径
+   * Radius of eye circles other than 1
    * @type {number}
    * @private
    */
   this.eyeRad_ = this.width_ * this.eyeRadRate_;
   /**
-   * 1の目の丸の半径
+   * Radius of the 1st circle
    * @type {number}
    * @private
    */
   this.eye1Rad_ = this.eyeRad_ * this.eye1RadRate_;
   /**
-   * 目の中心の座標配列。
-   * 配列のindexは、1:右上 2:右中 3:右下 4:中央 5:左上 6:左中 7:左下。
-   * 2階層目の配列要素は[x座標,y座標]。サイコロの中心を(0,0)とする
+   * Coordinate array of eye centers.
+   * The array index is 1: upper right 2: middle right 3: lower right 4: center
+   * 5: upper left 6: middle left 7: lower left. The array element of the second
+   * layer is [x coordinate, y coordinate]. Let the center of the dice be (0,0)
    * @type {Array.<?Array.<number>>}
    * @private
    */
-  this.cxyArr_ = [null, [this.distCir_, this.distCir_],
-      [this.distCir_, 0], [this.distCir_, -this.distCir_], [0, 0],
-      [-this.distCir_, this.distCir_], [-this.distCir_, 0],
-      [-this.distCir_, -this.distCir_]];
+  this.cxyArr_ = [
+    null, [ this.distCir_, this.distCir_ ], [ this.distCir_, 0 ],
+    [ this.distCir_, -this.distCir_ ], [ 0, 0 ],
+    [ -this.distCir_, this.distCir_ ], [ -this.distCir_, 0 ],
+    [ -this.distCir_, -this.distCir_ ]
+  ];
 };
 /**
- * 目のpathをz=0の面に作成
- * @param {number} value 目の値。1以上6以下の整数
- * @return {Array.<Pre3d.Path>} 作成したpath
+ * Create eye path on z u003d 0 plane
+ * @param {number} value The eye value. An integer from 1 to 6
+ * @return {Array. <Pre3d.Path>} created path
  */
 midice3d.DFace_.prototype.makep = function(value) {
-  // それぞれの目における、this.makeEyeP_の引数配列
-  var eyeposArr = [null, null, [5, 3], [1, 4, 7], [1, 3, 5, 7],
-      [1, 3, 4, 5, 7], [1, 2, 3, 5, 6, 7]];
+  // Argument array of this.makeEyeP_ for each eye
+  var eyeposArr = [
+    null, null, [ 5, 3 ], [ 1, 4, 7 ], [ 1, 3, 5, 7 ], [ 1, 3, 4, 5, 7 ],
+    [ 1, 2, 3, 5, 6, 7 ]
+  ];
   var paths = [];
   switch (value) {
-    case 1: {
-      var cp = Pre3d.PathUtils.makeCircle();
-      midice3d.transPath_(cp, midice3d.con.ttype.t,
-        {x: -this.hfwdth_, y: 0, z: this.hfwdth_});
-      var eye1R = this.eye1Rad_ / 0.5;  // makeCircle()の半径が0.5
-      midice3d.transPath_(cp, midice3d.con.ttype.s,
-          {x: eye1R, y: eye1R, z: 1});
-      paths[0] = cp;
-      break;
+  case 1: {
+    var cp = Pre3d.PathUtils.makeCircle();
+    midice3d.transPath_(cp, midice3d.con.ttype.t,
+                        {x : -this.hfwdth_, y : 0, z : this.hfwdth_});
+    var eye1R = this.eye1Rad_ / 0.5; // radius of makeCircle () is 0.5
+    midice3d.transPath_(cp, midice3d.con.ttype.s,
+                        {x : eye1R, y : eye1R, z : 1});
+    paths[0] = cp;
+    break;
+  }
+  case 2:
+  case 3:
+  case 4:
+  case 5:
+  case 6: {
+    for (var i = 0; i < eyeposArr[value].length; i++) {
+      paths[i] = this.makeEyeP_(eyeposArr[value][i]);
     }
-    case 2:
-    case 3:
-    case 4:
-    case 5:
-    case 6: {
-      for (var i = 0; i < eyeposArr[value].length; i++) {
-        paths[i] = this.makeEyeP_(eyeposArr[value][i]);
-      }
-      break;
-    }
-    default: {
-      break;
-    }
+    break;
+  }
+  default: {
+    break;
+  }
   }
   return paths;
 };
 /**
- * 1以外のダイスの目のpathを作成
- * @param {number} pos 1:右上 2:右中 3:右下 4:中央 5:左上 6:左中 7:左下
- * @return {Pre3d.Path} 作成したpath
+ * Create path for die rolls other than 1.
+ * @param {number} pos 1: top right 2: middle right 3: bottom right 4: center 5:
+ *     top left 6: center left 7: bottom left
+ * @return {Pre3d.Path} created path
  * @private
  */
 midice3d.DFace_.prototype.makeEyeP_ = function(pos) {
   var cp = Pre3d.PathUtils.makeCircle();
   pos = ~~pos;
   if (pos >= 1 && pos <= 7) {
-    // 目の中心の座標取得
+    // Get coordinates of eye center
     var cx = this.cxyArr_[pos][0];
     var cy = this.cxyArr_[pos][1];
-    // 目のPath作成
+    // Eye path creation
     midice3d.transPath_(cp, midice3d.con.ttype.t,
-        {x: -this.hfwdth_, y: 0, z: this.hfwdth_});
+                        {x : -this.hfwdth_, y : 0, z : this.hfwdth_});
     var eyeR = this.eyeRad_ / 0.5;
-    midice3d.transPath_(cp, midice3d.con.ttype.s, {x:eyeR, y: eyeR, z: 1});
-    midice3d.transPath_(cp, midice3d.con.ttype.t, {x:cx, y: cy, z: 0});
+    midice3d.transPath_(cp, midice3d.con.ttype.s, {x : eyeR, y : eyeR, z : 1});
+    midice3d.transPath_(cp, midice3d.con.ttype.t, {x : cx, y : cy, z : 0});
   }
   return cp;
 };
