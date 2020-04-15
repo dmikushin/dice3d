@@ -26,8 +26,8 @@ function makeDice()
 
 	var ctx = canvas.getContext("2d");
 
-        var dice = document.getElementById("dice");
-        dice.append(canvas);
+	var dice = document.getElementById("dice");
+	dice.append(canvas);
 
 	var dice3d = new midice3d.Dice(canvas, 0.9 /* scaling */);
   	dice3d.camFocLen = 0.7;
@@ -49,32 +49,23 @@ function makeDice()
 		var clearCanvas = false;
 		dice3d.draw(valueSideFront, value, coord.x, coord.y, clearCanvas);
 	}
-/*
-	img.onclick = function()
+
+	canvas.onclick = function()
 	{
-		idx, bufidx
-		var diceval = this.playeyeval_[idx];
-		if (bufidx === null)
+		var i = 0, n = mt.nextInt(3, 7);
+		var animation = window.setInterval(function()
 		{
-			bufidx = 0;
-		}
-
-		ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-		for (var i = 0; i < this.dicenum_; i++)
-		{
-			if (idx == this.play3didx_)
-			{
-				ccrmain.dice3dins.draw(bufidx, diceval[i], this.diceX_[i],
-					this.diceY_[idx], false);
-			}
-			else
-			{
-				ccrmain.dice2dins.draw(diceval[i], this.diceX_[i], this.diceY_[idx], false);
-			}
-		}
+			var value = mt.nextInt(1, 6);
+      			var valueSide = mt.nextInt(0, 1);
+			var coord = { x: 2, y: 1 };
+			var clearCanvas = false;
+			dice3d.draw(valueSide, value, coord.x, coord.y, clearCanvas);
+			i++;
+			if (i > n)
+				window.clearInterval(animation);
+		}, 250);
 	}
-*/
+
 }
 </script>
 <body onload="makeDice()">
