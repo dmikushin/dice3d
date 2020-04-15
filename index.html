@@ -14,61 +14,64 @@ body {
 <script type="text/javascript" src="ThirdParty/magicant/sjavascript/mt.js" charset="UTF-8"></script>
 <script type="text/javascript" src="dice3d.js" charset="UTF-8"></script>
 <script>
-function rollDice()
-{
-}
-
-function makeDice()
+function makeTable()
 {
 	var canvas = document.createElement("canvas");
-	canvas.width = window.innerWidth;
-	canvas.height = window.innerHeight;
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
 
-	var ctx = canvas.getContext("2d");
+	var table = document.getElementById("diceTable");
+        table.append(canvas);
 
-	var dice = document.getElementById("dice");
-	dice.append(canvas);
+        diceTable.make(canvas);
+}
 
-	var dice3d = new midice3d.Dice(canvas, 0.9 /* scaling */);
-  	dice3d.camFocLen = 0.7;
-	dice3d.init();
-
-	// Mersenne Twister random generator.
-	var mt = new MersenneTwister();
-
-	var img = document.createElement("img");
-	img.src = "wood3.jpg";
-	img.onload = function()
+var diceTable =
+{
+	make : function(canvas)
 	{
-		ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+		this.ctx = canvas.getContext("2d");
 
-		var value = mt.nextInt(1, 6);
-		var valueSideFront = 0;
-		var valueSideBack = 1;
-		var coord = { x: 2, y: 1 };
-		var clearCanvas = false;
-		dice3d.draw(valueSideFront, value, coord.x, coord.y, clearCanvas);
-	}
+		var dice3d = new midice3d.Dice(canvas, 0.9 /* scaling */);
+	  	dice3d.camFocLen = 0.7;
+		dice3d.init();
 
-	canvas.onclick = function()
-	{
-		var i = 0, n = mt.nextInt(3, 7);
-		var animation = window.setInterval(function()
+		// Mersenne Twister random generator.
+		var mt = new MersenneTwister();
+
+		var img = document.createElement("img");
+		img.src = "wood3.jpg";
+		img.onload = function()
 		{
-			var value = mt.nextInt(1, 6);
-      			var valueSide = mt.nextInt(0, 1);
+			diceTable.ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+			diceTable.value = mt.nextInt(1, 6);
+			var valueSideFront = 0;
+			var valueSideBack = 1;
 			var coord = { x: 2, y: 1 };
 			var clearCanvas = false;
-			dice3d.draw(valueSide, value, coord.x, coord.y, clearCanvas);
-			i++;
-			if (i > n)
-				window.clearInterval(animation);
-		}, 250);
-	}
+			dice3d.draw(valueSideFront, diceTable.value, coord.x, coord.y, clearCanvas);
+		}
 
-}
+		canvas.addEventListener("click", function()
+		{
+			var i = 0, n = mt.nextInt(3, 7);
+			var animation = window.setInterval(function()
+			{
+				diceTable.value = mt.nextInt(1, 6);
+	      			var valueSide = mt.nextInt(0, 1);
+				var coord = { x: 2, y: 1 };
+				var clearCanvas = false;
+				dice3d.draw(valueSide, diceTable.value, coord.x, coord.y, clearCanvas);
+				i++;
+				if (i > n)
+					window.clearInterval(animation);
+			}, 250);
+		});
+	}
+};
 </script>
-<body onload="makeDice()">
-<div id="dice"></div>
+<body onload="makeTable()">
+<div id="diceTable"></div>
 </body>
 
