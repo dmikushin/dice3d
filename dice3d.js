@@ -499,20 +499,10 @@ midice3d.Dice.prototype.chgIntensity_ = function(renderer) {
  * @param {boolean} clrflg true to clear the Canvas before drawing. Otherwise
  *     false
  */
-midice3d.Dice.prototype.draw = function(bufidx, upeyeval, x, y, clrflg) {
-  // Default value setting
-  if (!x) {
-    x = 1;
-  }
-  if (!y) {
-    y = 1;
-  }
+midice3d.Dice.prototype.draw = function(bufidx, upeyeval, tx, ty, clrflg) {
   if (clrflg === undefined) {
     clrflg = true;
   }
-  var tx, ty; // Center moving distance
-  tx = ~~(x * this.hfcvh_ - this.canvas_.width / 2);
-  ty = ~~(y * this.hfcvh_ - this.hfcvh_);
 
   var renderer = this.renderer_;
   var dicebuf = this.dbuf_[bufidx];
